@@ -189,6 +189,21 @@ def inject_styles() -> None:
                 background: rgba(255, 255, 255, 0.70);
             }
 
+            [data-testid="stWidgetLabel"] p {
+                color: #5f7484 !important;
+                font-weight: 600;
+            }
+
+            .stSelectbox [data-baseweb="select"] *,
+            .stMultiSelect [data-baseweb="select"] * {
+                color: var(--navy) !important;
+            }
+
+            .stSelectbox input::placeholder,
+            .stMultiSelect input::placeholder {
+                color: #8da0ad !important;
+            }
+
             [data-testid="stDataFrame"] {
                 background: rgba(255, 255, 255, 0.74);
                 border: 1px solid var(--line);
