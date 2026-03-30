@@ -139,6 +139,7 @@ def inject_styles() -> None:
                 text-transform: uppercase;
                 letter-spacing: 0.10em;
                 font-size: 0.72rem;
+                color: #6b7f8e;
             }
 
             [data-testid="stMetricValue"] {
@@ -155,6 +156,8 @@ def inject_styles() -> None:
                 padding: 0.65rem 1.15rem;
                 background: rgba(255, 255, 255, 0.58);
                 border: 1px solid rgba(18, 50, 71, 0.10);
+                color: var(--navy) !important;
+                font-weight: 600;
             }
 
             .stTabs [aria-selected="true"] {
