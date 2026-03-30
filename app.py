@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import os
 from pathlib import Path
 
@@ -69,6 +70,429 @@ def get_api_key() -> str:
     )
 
 
+def get_active_model() -> str:
+    return os.getenv("GEMINI_MODEL", DEFAULT_MODEL)
+
+
+def inject_styles() -> None:
+    st.markdown(
+        """
+        <style>
+            :root {
+                --paper: #f8f4ec;
+                --mist: #eef3f7;
+                --navy: #123247;
+                --teal: #1d6a70;
+                --sand: #d88c4b;
+                --ink: #173142;
+                --line: rgba(18, 50, 71, 0.12);
+                --soft-shadow: 0 22px 45px rgba(17, 40, 58, 0.08);
+            }
+
+            .stApp {
+                background:
+                    radial-gradient(circle at top left, rgba(216, 140, 75, 0.10), transparent 26%),
+                    radial-gradient(circle at top right, rgba(29, 106, 112, 0.10), transparent 24%),
+                    linear-gradient(180deg, #f7f2e8 0%, #f3f6fb 48%, #edf2f6 100%);
+                color: var(--ink);
+            }
+
+            .block-container {
+                max-width: 1180px;
+                padding-top: 1.8rem;
+                padding-bottom: 4rem;
+            }
+
+            h1, h2, h3, h4 {
+                font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+                letter-spacing: -0.02em;
+                color: var(--navy);
+            }
+
+            p, li, div, label, input, textarea, [data-testid="stMarkdownContainer"] {
+                font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+            }
+
+            [data-testid="stSidebar"] {
+                background: linear-gradient(180deg, #102738 0%, #174559 100%);
+                border-right: 1px solid rgba(255, 255, 255, 0.08);
+            }
+
+            [data-testid="stSidebar"] * {
+                color: #f3efe8 !important;
+            }
+
+            [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div {
+                background: rgba(255, 255, 255, 0.20);
+            }
+
+            [data-testid="stMetric"] {
+                background: rgba(255, 255, 255, 0.76);
+                border: 1px solid var(--line);
+                border-radius: 22px;
+                padding: 1rem 1.1rem;
+                box-shadow: var(--soft-shadow);
+                backdrop-filter: blur(10px);
+            }
+
+            [data-testid="stMetricLabel"] {
+                text-transform: uppercase;
+                letter-spacing: 0.10em;
+                font-size: 0.72rem;
+            }
+
+            [data-testid="stMetricValue"] {
+                color: var(--navy);
+            }
+
+            .stTabs [data-baseweb="tab-list"] {
+                gap: 0.7rem;
+            }
+
+            .stTabs [data-baseweb="tab"] {
+                height: auto;
+                border-radius: 999px;
+                padding: 0.65rem 1.15rem;
+                background: rgba(255, 255, 255, 0.58);
+                border: 1px solid rgba(18, 50, 71, 0.10);
+            }
+
+            .stTabs [aria-selected="true"] {
+                background: linear-gradient(135deg, #143b4e 0%, #1d6a70 100%);
+                color: #ffffff !important;
+                box-shadow: 0 12px 30px rgba(20, 59, 78, 0.24);
+            }
+
+            .stButton > button {
+                border: none;
+                border-radius: 999px;
+                padding: 0.82rem 1.35rem;
+                font-weight: 600;
+                background: linear-gradient(135deg, #143b4e 0%, #1d6a70 100%);
+                color: #ffffff;
+                box-shadow: 0 16px 30px rgba(20, 59, 78, 0.22);
+                transition: transform 0.18s ease, box-shadow 0.18s ease;
+            }
+
+            .stButton > button:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 20px 32px rgba(20, 59, 78, 0.28);
+            }
+
+            .stSelectbox [data-baseweb="select"] > div,
+            .stMultiSelect [data-baseweb="select"] > div {
+                border-radius: 16px;
+                border: 1px solid rgba(18, 50, 71, 0.12);
+                background: rgba(255, 255, 255, 0.70);
+            }
+
+            [data-testid="stDataFrame"] {
+                background: rgba(255, 255, 255, 0.74);
+                border: 1px solid var(--line);
+                border-radius: 22px;
+                padding: 0.45rem;
+                box-shadow: var(--soft-shadow);
+            }
+
+            [data-testid="stAlert"] {
+                border-radius: 20px;
+                border: 1px solid rgba(18, 50, 71, 0.08);
+                box-shadow: var(--soft-shadow);
+            }
+
+            .hero-shell {
+                position: relative;
+                overflow: hidden;
+                padding: 2rem 2rem 1.8rem;
+                border-radius: 34px;
+                background: linear-gradient(135deg, rgba(18, 50, 71, 0.98) 0%, rgba(29, 106, 112, 0.94) 100%);
+                color: #ffffff;
+                box-shadow: 0 28px 60px rgba(18, 50, 71, 0.22);
+                margin-bottom: 1.4rem;
+            }
+
+            .hero-shell::after {
+                content: "";
+                position: absolute;
+                right: -8%;
+                bottom: -45%;
+                width: 360px;
+                height: 360px;
+                background: radial-gradient(circle, rgba(246, 213, 154, 0.28), transparent 58%);
+            }
+
+            .hero-kicker {
+                position: relative;
+                z-index: 1;
+                text-transform: uppercase;
+                letter-spacing: 0.18em;
+                font-size: 0.74rem;
+                color: #f6d59a;
+                margin-bottom: 0.55rem;
+            }
+
+            .hero-title {
+                position: relative;
+                z-index: 1;
+                font-size: 2.65rem;
+                line-height: 1.02;
+                margin: 0;
+                max-width: 720px;
+            }
+
+            .hero-copy {
+                position: relative;
+                z-index: 1;
+                margin-top: 0.8rem;
+                max-width: 760px;
+                color: rgba(247, 245, 240, 0.92);
+                font-size: 1.02rem;
+                line-height: 1.6;
+            }
+
+            .hero-pills {
+                position: relative;
+                z-index: 1;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.65rem;
+                margin-top: 1rem;
+            }
+
+            .hero-pill {
+                padding: 0.48rem 0.85rem;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.12);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                font-size: 0.86rem;
+                color: #fbf7ef;
+            }
+
+            .hero-grid {
+                position: relative;
+                z-index: 1;
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 0.85rem;
+                margin-top: 1.25rem;
+            }
+
+            .hero-stat {
+                padding: 0.95rem 1rem;
+                border-radius: 20px;
+                background: rgba(255, 255, 255, 0.10);
+                border: 1px solid rgba(255, 255, 255, 0.16);
+                backdrop-filter: blur(10px);
+            }
+
+            .hero-stat-label {
+                text-transform: uppercase;
+                letter-spacing: 0.10em;
+                font-size: 0.7rem;
+                color: rgba(249, 245, 237, 0.78);
+                margin-bottom: 0.45rem;
+            }
+
+            .hero-stat-value {
+                font-size: 1.2rem;
+                font-weight: 700;
+                color: #ffffff;
+            }
+
+            .section-shell {
+                margin: 1rem 0 1.15rem;
+                padding: 1.15rem 1.2rem;
+                border-radius: 26px;
+                background: rgba(255, 255, 255, 0.68);
+                border: 1px solid rgba(18, 50, 71, 0.10);
+                box-shadow: var(--soft-shadow);
+            }
+
+            .section-kicker {
+                text-transform: uppercase;
+                letter-spacing: 0.14em;
+                font-size: 0.72rem;
+                color: #7d5e3b;
+                margin-bottom: 0.35rem;
+            }
+
+            .section-title {
+                font-size: 1.55rem;
+                font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+                color: var(--navy);
+                margin-bottom: 0.35rem;
+            }
+
+            .section-copy {
+                color: #446072;
+                line-height: 1.6;
+            }
+
+            .analysis-card {
+                padding: 1.1rem 1.2rem;
+                border-radius: 24px;
+                margin: 1rem 0;
+                box-shadow: var(--soft-shadow);
+                border: 1px solid rgba(18, 50, 71, 0.10);
+                background: rgba(255, 255, 255, 0.76);
+            }
+
+            .analysis-card.teal {
+                background: linear-gradient(135deg, rgba(18, 50, 71, 0.96) 0%, rgba(29, 106, 112, 0.92) 100%);
+                color: #ffffff;
+            }
+
+            .analysis-card.warm {
+                background: linear-gradient(135deg, rgba(250, 245, 236, 0.98) 0%, rgba(243, 233, 218, 0.95) 100%);
+            }
+
+            .analysis-title {
+                font-size: 1.08rem;
+                font-weight: 700;
+                margin-bottom: 0.45rem;
+            }
+
+            .analysis-body {
+                line-height: 1.7;
+                color: inherit;
+            }
+
+            @media (max-width: 980px) {
+                .hero-title {
+                    font-size: 2.15rem;
+                }
+
+                .hero-grid {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
+
+            @media (max-width: 640px) {
+                .block-container {
+                    padding-top: 1.1rem;
+                }
+
+                .hero-shell {
+                    padding: 1.5rem 1.25rem;
+                }
+
+                .hero-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_section_header(kicker: str, title: str, body: str) -> None:
+    st.markdown(
+        f"""
+        <div class="section-shell">
+            <div class="section-kicker">{html.escape(kicker)}</div>
+            <div class="section-title">{html.escape(title)}</div>
+            <div class="section-copy">{html.escape(body)}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_analysis_card(title: str, body: str, tone: str = "warm") -> None:
+    safe_body = html.escape(body).replace("\n", "<br>")
+    st.markdown(
+        f"""
+        <div class="analysis-card {tone}">
+            <div class="analysis-title">{html.escape(title)}</div>
+            <div class="analysis-body">{safe_body}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_hero_banner(
+    df: pd.DataFrame, filtered_df: pd.DataFrame, filters: dict
+) -> None:
+    zipcodes = filters["zipcodes"]
+    if zipcodes:
+        zipcode_label = ", ".join(zipcodes[:3])
+        if len(zipcodes) > 3:
+            zipcode_label += f" +{len(zipcodes) - 3}"
+    else:
+        zipcode_label = "Tous les zipcodes"
+
+    hero_cards = [
+        ("Transactions visibles", format_number(len(filtered_df), 0)),
+        (
+            "Prix median",
+            format_currency(filtered_df["price"].median()) if not filtered_df.empty else "N/A",
+        ),
+        (
+            "Prix moyen au pi2",
+            format_currency(filtered_df["price_per_sqft"].mean())
+            if not filtered_df.empty
+            else "N/A",
+        ),
+        ("Modele Gemini", get_active_model()),
+    ]
+    hero_cards_html = "".join(
+        f"""
+        <div class="hero-stat">
+            <div class="hero-stat-label">{html.escape(label)}</div>
+            <div class="hero-stat-value">{html.escape(value)}</div>
+        </div>
+        """
+        for label, value in hero_cards
+    )
+    hero_pills = [
+        f"Base complete: {format_number(len(df), 0)} ventes",
+        f"Perimetre: {zipcode_label}",
+        (
+            "Front de mer seulement"
+            if filters["waterfront_only"]
+            else "Toutes configurations"
+        ),
+    ]
+    hero_pills_html = "".join(
+        f'<span class="hero-pill">{html.escape(item)}</span>' for item in hero_pills
+    )
+
+    st.markdown(
+        f"""
+        <div class="hero-shell">
+            <div class="hero-kicker">King County real estate studio</div>
+            <div class="hero-title">Une lecture plus nette du marche immobilier de Seattle</div>
+            <div class="hero-copy">
+                Explorez les tendances du comte de King, filtrez le jeu de donnees
+                en temps reel et passez de la vision macro a l'evaluation d'une
+                propriete avec une interface plus claire, plus visuelle et plus
+                convaincante pour la remise.
+            </div>
+            <div class="hero-pills">{hero_pills_html}</div>
+            <div class="hero-grid">{hero_cards_html}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def style_chart_axes(ax: plt.Axes, grid_axis: str = "both") -> None:
+    ax.set_facecolor("#fffdf8")
+    ax.set_axisbelow(True)
+    for spine in ("top", "right"):
+        ax.spines[spine].set_visible(False)
+    for spine in ("left", "bottom"):
+        ax.spines[spine].set_color("#c8d3dc")
+    ax.tick_params(colors="#27465d")
+    ax.title.set_color("#133247")
+    ax.title.set_fontweight("bold")
+    ax.xaxis.label.set_color("#456072")
+    ax.yaxis.label.set_color("#456072")
+    ax.grid(axis=grid_axis, alpha=0.18, linestyle="--", linewidth=0.8)
+
+
 def dataset_signature(df: pd.DataFrame) -> str:
     if df.empty:
         return "empty"
@@ -96,6 +520,39 @@ def classify_valuation(gap_pct: float) -> str:
 def show_figure(fig: plt.Figure) -> None:
     st.pyplot(fig, use_container_width=True)
     plt.close(fig)
+
+
+def build_market_pulse_text(filtered_df: pd.DataFrame) -> str:
+    if filtered_df.empty:
+        return "Aucune propriete ne correspond aux filtres pour le moment."
+
+    top_zipcode = filtered_df["zipcode"].mode().iloc[0]
+    renovated_share = format_percent(filtered_df["is_renovated"].mean())
+    return (
+        f"Le segment visible affiche un prix median de "
+        f"{format_currency(filtered_df['price'].median())} et un prix moyen de "
+        f"{format_currency(filtered_df['price'].mean())}. Le zipcode le plus "
+        f"represente est {top_zipcode}, avec {renovated_share} des biens ayant "
+        f"ete renoves."
+    )
+
+
+def build_property_pulse_text(
+    selected_property: pd.Series,
+    avg_comp_price: float,
+    avg_comp_ppsf: float,
+    gap_pct: float,
+    valuation_label: str,
+) -> str:
+    return (
+        f"La propriete ID {selected_property['id']} est actuellement "
+        f"{valuation_label.lower()} face a ses comparables. Son prix au pi2 est "
+        f"de {format_currency(selected_property['price_per_sqft'])}, contre une "
+        f"moyenne locale de {format_currency(avg_comp_ppsf)} "
+        f"si l'on projette le prix local sur sa surface. L'ecart relatif ressort "
+        f"a {format_percent(gap_pct)}, pour une valeur comparable moyenne de "
+        f"{format_currency(avg_comp_price)}."
+    )
 
 
 @st.cache_data(show_spinner=False)
@@ -143,8 +600,8 @@ def load_data(csv_path: str) -> pd.DataFrame:
 
 
 def render_sidebar_filters(df: pd.DataFrame) -> dict:
-    st.sidebar.header("Filtres du marche")
-    st.sidebar.caption("Les filtres ci-dessous s'appliquent aux deux onglets.")
+    st.sidebar.markdown("## Studio du marche")
+    st.sidebar.caption("Les filtres ci-dessous pilotent toute l'application.")
 
     bedrooms_min = int(df["bedrooms"].min())
     bedrooms_max = int(df["bedrooms"].max())
@@ -221,33 +678,45 @@ def apply_filters(df: pd.DataFrame, filters: dict) -> pd.DataFrame:
 
 def plot_price_distribution(df: pd.DataFrame) -> plt.Figure:
     fig, ax = plt.subplots(figsize=(8, 4.5))
-    ax.hist(df["price"].dropna(), bins=30, color="#1f77b4", edgecolor="white")
+    fig.patch.set_facecolor("#fffdf8")
+    ax.hist(
+        df["price"].dropna(),
+        bins=32,
+        color="#173e52",
+        edgecolor="#f7f2e7",
+        linewidth=1.0,
+    )
     ax.set_title("Distribution des prix")
     ax.set_xlabel("Prix de vente (USD)")
     ax.set_ylabel("Nombre de proprietes")
     ax.xaxis.set_major_formatter(FuncFormatter(dollar_axis_formatter))
-    ax.grid(alpha=0.2)
+    style_chart_axes(ax, grid_axis="y")
     fig.tight_layout()
     return fig
 
 
 def plot_surface_vs_price(df: pd.DataFrame) -> plt.Figure:
     fig, ax = plt.subplots(figsize=(8, 4.5))
+    fig.patch.set_facecolor("#fffdf8")
     scatter = ax.scatter(
         df["sqft_living"],
         df["price"],
         c=df["grade"],
-        cmap="viridis",
-        alpha=0.7,
-        s=35,
+        cmap="cividis",
+        alpha=0.78,
+        s=42,
+        edgecolors="#f7f2e7",
+        linewidths=0.25,
     )
     ax.set_title("Prix vs superficie habitable")
     ax.set_xlabel("Superficie habitable (pi2)")
     ax.set_ylabel("Prix de vente (USD)")
     ax.yaxis.set_major_formatter(FuncFormatter(dollar_axis_formatter))
-    ax.grid(alpha=0.2)
+    style_chart_axes(ax)
     colorbar = fig.colorbar(scatter, ax=ax)
     colorbar.set_label("Grade")
+    colorbar.outline.set_edgecolor("#c8d3dc")
+    colorbar.ax.tick_params(colors="#27465d")
     fig.tight_layout()
     return fig
 
@@ -263,16 +732,19 @@ def plot_avg_price_by_bedrooms(df: pd.DataFrame) -> plt.Figure:
         grouped = grouped.head(10)
 
     fig, ax = plt.subplots(figsize=(8, 4.5))
+    fig.patch.set_facecolor("#fffdf8")
     ax.bar(
         grouped["bedrooms"].astype(int).astype(str),
         grouped["price"],
-        color="#16a085",
+        color="#c98143",
+        edgecolor="#f7f2e7",
+        linewidth=1.0,
     )
     ax.set_title("Prix moyen par nombre de chambres")
     ax.set_xlabel("Nombre de chambres")
     ax.set_ylabel("Prix moyen (USD)")
     ax.yaxis.set_major_formatter(FuncFormatter(dollar_axis_formatter))
-    ax.grid(axis="y", alpha=0.2)
+    style_chart_axes(ax, grid_axis="y")
     fig.tight_layout()
     return fig
 
@@ -487,10 +959,11 @@ def plot_property_vs_comparables(
 
     fig_height = max(4.5, 0.7 * len(labels) + 1.5)
     fig, ax = plt.subplots(figsize=(8, fig_height))
-    bars = ax.barh(labels, values, color=colors)
+    fig.patch.set_facecolor("#fffdf8")
+    bars = ax.barh(labels, values, color=colors, edgecolor="#f7f2e7", linewidth=1.0)
     ax.axvline(
         chart_df["price"].mean(),
-        color="#1f77b4",
+        color="#1d6a70",
         linestyle="--",
         linewidth=2,
         label="Moyenne comparables",
@@ -499,7 +972,7 @@ def plot_property_vs_comparables(
     ax.set_xlabel("Prix (USD)")
     ax.xaxis.set_major_formatter(FuncFormatter(dollar_axis_formatter))
     ax.invert_yaxis()
-    ax.grid(axis="x", alpha=0.2)
+    style_chart_axes(ax, grid_axis="x")
 
     for bar, value in zip(bars, values):
         ax.text(
@@ -516,15 +989,16 @@ def plot_property_vs_comparables(
 
 
 def render_market_tab(filtered_df: pd.DataFrame) -> None:
-    st.subheader("Onglet 1 - Exploration du marche")
+    render_section_header(
+        "Onglet 1",
+        "Explorer le marche avec plus de relief",
+        "Utilisez la barre laterale pour resserrer le perimetre, lire le signal "
+        "du marche en un coup d'oeil puis demander une synthese LLM plus "
+        "professionnelle.",
+    )
     if filtered_df.empty:
         st.warning("Aucune propriete ne correspond aux filtres actuels.")
         return
-
-    st.caption(
-        "Les indicateurs et graphiques ci-dessous se mettent a jour selon les "
-        "filtres choisis dans la barre laterale."
-    )
 
     metric_columns = st.columns(4)
     metric_columns[0].metric("Nombre de proprietes", format_number(len(filtered_df), 0))
@@ -535,6 +1009,12 @@ def render_market_tab(filtered_df: pd.DataFrame) -> None:
         format_currency(filtered_df["price_per_sqft"].mean()),
     )
 
+    render_analysis_card(
+        "Lecture instantanee du segment",
+        build_market_pulse_text(filtered_df),
+        tone="teal",
+    )
+
     chart_left, chart_right = st.columns(2)
     with chart_left:
         show_figure(plot_price_distribution(filtered_df))
@@ -543,7 +1023,12 @@ def render_market_tab(filtered_df: pd.DataFrame) -> None:
 
     show_figure(plot_avg_price_by_bedrooms(filtered_df))
 
-    st.markdown("### Resume genere par LLM")
+    render_section_header(
+        "Analyse assistee",
+        "Resume du marche genere par Gemini",
+        "Le modele transforme les statistiques filtrees en une lecture concise, "
+        "utile et plus presentable pour ton livrable.",
+    )
     market_key = dataset_signature(filtered_df)
     if st.button("Generer un resume du marche", type="primary", key="market_summary"):
         with st.spinner("Analyse Gemini en cours..."):
@@ -554,7 +1039,7 @@ def render_market_tab(filtered_df: pd.DataFrame) -> None:
 
     payload = st.session_state.get("market_summary_payload")
     if payload and payload.get("signature") == market_key:
-        st.info(payload["text"])
+        render_analysis_card("Synthese du marche", payload["text"], tone="warm")
 
 
 def render_property_header(selected_property: pd.Series) -> None:
@@ -598,7 +1083,12 @@ def render_property_header(selected_property: pd.Series) -> None:
 
 
 def render_property_tab(filtered_df: pd.DataFrame) -> None:
-    st.subheader("Onglet 2 - Analyse d'une propriete")
+    render_section_header(
+        "Onglet 2",
+        "Zoom sur une propriete individuelle",
+        "Selectionnez un bien, comparez-le a son voisinage de marche et obtenez "
+        "une recommandation d'investissement plus lisible.",
+    )
     if filtered_df.empty:
         st.warning("Elargissez les filtres pour selectionner une propriete.")
         return
@@ -626,9 +1116,22 @@ def render_property_tab(filtered_df: pd.DataFrame) -> None:
         return
 
     avg_comp_price = comparables["price"].mean()
+    avg_comp_ppsf = comparables["price_per_sqft"].mean()
     gap_value = selected_property["price"] - avg_comp_price
     gap_pct = gap_value / avg_comp_price if avg_comp_price else np.nan
     valuation_label = classify_valuation(gap_pct)
+
+    render_analysis_card(
+        "Lecture rapide de la propriete",
+        build_property_pulse_text(
+            selected_property,
+            avg_comp_price,
+            avg_comp_ppsf,
+            gap_pct,
+            valuation_label,
+        ),
+        tone="teal",
+    )
 
     metric_columns = st.columns(3)
     metric_columns[0].metric("Prix moyen comparables", format_currency(avg_comp_price))
@@ -679,7 +1182,12 @@ def render_property_tab(filtered_df: pd.DataFrame) -> None:
 
     show_figure(plot_property_vs_comparables(selected_property, comparables))
 
-    st.markdown("### Recommandation generee par LLM")
+    render_section_header(
+        "Decision assistee",
+        "Recommandation generee par Gemini",
+        "Le modele synthese la fiche du bien, les comparables et le verdict "
+        "quantitatif pour produire une recommandation plus defendable.",
+    )
     current_signature = property_signature(selected_property, comparables)
     if st.button(
         "Generer une recommandation d'investissement",
@@ -696,7 +1204,11 @@ def render_property_tab(filtered_df: pd.DataFrame) -> None:
 
     payload = st.session_state.get("property_recommendation_payload")
     if payload and payload.get("signature") == current_signature:
-        st.success(payload["text"])
+        render_analysis_card(
+            "Recommandation d'investissement",
+            payload["text"],
+            tone="warm",
+        )
 
 
 def main() -> None:
@@ -705,11 +1217,7 @@ def main() -> None:
         layout="wide",
     )
 
-    st.title("King County Real Estate Analyzer")
-    st.write(
-        "Application Streamlit pour explorer le marche immobilier du comte de "
-        "King et analyser des proprietes individuelles."
-    )
+    inject_styles()
 
     if not DATA_PATH.exists():
         st.error(
@@ -721,10 +1229,7 @@ def main() -> None:
     filters = render_sidebar_filters(df)
     filtered_df = apply_filters(df, filters)
 
-    st.caption(
-        f"Jeu de donnees charge: {format_number(len(df), 0)} transactions | "
-        f"Resultats filtres: {format_number(len(filtered_df), 0)}"
-    )
+    render_hero_banner(df, filtered_df, filters)
 
     market_tab, property_tab = st.tabs(
         ["Onglet 1 - Marche", "Onglet 2 - Propriete"]
